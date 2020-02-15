@@ -10,19 +10,19 @@ function getResponse(data) {
                 </div>`);
     // Checking Pizza Requests.
     if (data.includes("pizza") || data.includes("Pizza")) {
-
-      checkOrder(data)
+        checkOrder(data)
     }
 
 }
 
 function checkOrder(data) {
 
-        outputArea.append(`<div class="scrolling-wrapper">
+    outputArea.append(`
+        <div class="scrolling-wrapper">
         <div class="card">
             <img src="https://www.dominos.co.in/files/items/Veg_Extravaganz.jpg" alt="" class="card__image">
             <div class="card__content">
-                <input type="checkbox" id="test1" class="checkbox" name="item"/>
+                <input type="checkbox" id="test1" class="checkbox" name="item" price=100 />
                 <label for="test1">Veg Extravaganza</label>
 
                 <div class="card__price">
@@ -33,7 +33,7 @@ function checkOrder(data) {
         <div class="card">
             <img src="https://www.dominos.co.in/files/items/Margherit.jpg" alt="" class="card__image">
             <div class="card__content">
-                <input type="checkbox" id="test2" class="checkbox" name="item"/>
+                <input type="checkbox" id="test2" class="checkbox" name="item" price=100 />
                 <label for="test2">Margherita</label>
 
                 <div class="card__price">
@@ -45,7 +45,7 @@ function checkOrder(data) {
             <img src="https://www.dominos.co.in/files/items/Farmhouse.jpg" alt="" class="card__image">
             <div class="card__content">
 
-                <input type="checkbox" id="test4" class="checkbox" name="item"/>
+                <input type="checkbox" id="test4" class="checkbox" name="item" price=100 />
                 <label for="test4">Farm House</label>
 
                 <div class="card__price">
@@ -57,11 +57,11 @@ function checkOrder(data) {
             <img src="https://www.dominos.co.in/files/items/IndianTandooriPaneer.jpg" alt="" class="card__image">
             <div class="card__content">
 
-                <input type="checkbox" id="test4" class="checkbox" name="item"/>
+                <input type="checkbox" id="test4" class="checkbox" name="item" price=100 />
                 <label for="test4">Indian Tandoori Paneer</label>
 
                 <div class="card__price">
-                    <div class="card__amount">₹100
+                    <div class="card__amount">₹125
                         <span class="card__details">
                             Tandoori Paneer.
                         </span>
@@ -70,30 +70,63 @@ function checkOrder(data) {
             </div>
         </div>
         <input type="button" class="btn btn-3" value="Order">
-    </div>`);
+    </div>
+        `);
 
 
-        $(".btn-3").click(function () {
+    $(".btn-3").click(function () {
 
-            let details = [];
-            $.each($("input[name='item']:checked"), function () {
+        let details = [];
+        $.each($("input[name='item']:checked"), function () {
 
-                let pizzaType = $(this).next("label").text()
-                let siblings = $(this).siblings();
-                let pizzaPrice = $(siblings[1].lastElementChild).clone().children().remove().end().text();
-                var pizzaDetails = {}
-                pizzaDetails["pizzaType"] = pizzaType;
-                pizzaDetails["pizzaPrice"] = pizzaPrice;
+            let pizzaType = $(this).next("label").text()
+            let pizzaPrice = $(this).attr("price")
+            let siblings = $(this).siblings();
+            // let pizzaPrice = $(siblings[1].lastElementChild).clone().children().remove().end().value();
+            var pizzaDetails = {}
+            pizzaDetails["pizzaType"] = pizzaType;
+            pizzaDetails["pizzaPrice"] = pizzaPrice;
 
-                details.push(pizzaDetails)    //Pushing the selected orders into array.
+            details.push(pizzaDetails)    //Pushing the selected orders into array.
 
-            });
-            let timestamp = new Date().getUTCMilliseconds();
-            orders.orderId = timestamp;
-            orders.orders = details;
-
-            $.get("/get", { msg: "Order now" }).then(getResponse);
         });
+        let timestamp = new Date().getUTCMilliseconds();
+        orders.orderId = timestamp;
+        orders.orders = details;
+
+
+
+        $.ajax({
+            url: '/order',
+            data: JSON.stringify(orders),
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                console.log("----IN AJAXX-----")
+                console.log(data)
+                let message = ""
+                if (data.status == "Failed") {
+                    message = "Sorry, We couldn't process your order at this moment"
+                }
+                else {
+                    message = "You order is placed and your order id is " + data.order_id
+                }
+                outputArea.append(`
+                <div class='user-message'>
+                <div class='message'>
+                ` + message +
+                    `
+                <a href="/track?order_id=${data.order_id}"> track order</a> 
+                </div>
+                </div>`);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+        // $.post("/order", { msg: "Order now" }).then(getResponse);
+    });
 
 }
 function deliveryDetails(deliveryAddress) {
@@ -102,28 +135,24 @@ function deliveryDetails(deliveryAddress) {
     orders.addressLocation = deliveryAddress;   // Adding the House Address.
     console.log(orders);
 
-        $.ajax({
-            url: '/insertDb',
-            data: JSON.stringify(orders),
-            type: 'POST',
-            contentType: 'application/json;charset=UTF-8',
-            success: function (data) {
-                console.log("----IN AJAXX-----")
-                console.log(data)
+    $.ajax({
+        url: '/insertDb',
+        data: JSON.stringify(orders),
+        type: 'POST',
+        contentType: 'application/json;charset=UTF-8',
+        success: function (data) {
+            console.log("----IN AJAXX-----")
+            console.log(data)
 
-                $.get("/get", { msg: "Valid" }).then(getResponse);
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
+            $.get("/get", { msg: "Valid" }).then(getResponse);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
 
 }
 function msgString() {
     console.log("Promises are working!")
 
 }
-
-
-
-
