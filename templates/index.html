@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/styleCards.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/responses.js"></script>
+</head>
+
+<body>
+    <div>
+
+        <div class="chat-output" id="chat-output">
+            <div class="user-message">
+                <div class="message">Hi! I'm a bot. What's up?</div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+
+            <form action="#0" id="user-input-form">
+                <input id="textInput" type="text" name="msg" class="textInput" placeholder="Welcome to YO-YO Pizza.">
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+
+        function validateStr(value) {
+                 return /\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\./i.test(value);
+
+        }
+
+        let outputArea = $("#chat-output");
+
+        // Depicting User Response
+        $("#user-input-form").on("submit", function (e) {
+
+            e.preventDefault();
+            let rawText = $("#textInput").val();
+            outputArea.append(`<div class='bot-message'>
+            <div class='message'>${rawText}
+            </div>
+            </div>`);
+            $("#textInput").val("");
+
+            //-----------------Bot Response------------
+
+            // Expressions works on such addresses: "253 N. Cherry St."
+            if (validateStr(rawText) == false) {
+
+                $.get("/get", { msg: rawText }).then(getResponse);
+            }
+            else {
+                deliveryDetails(rawText);
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>
