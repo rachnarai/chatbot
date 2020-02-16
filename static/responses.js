@@ -1,5 +1,5 @@
 
-var orders = {}
+
 function getResponse(data) {
 
     outputArea.append(`
@@ -72,28 +72,26 @@ function checkOrder(data) {
         <input type="button" class="btn btn-3" value="Order">
     </div>
         `);
-
+function ask_question(item, index) {
+  document.getElementById("demo").innerHTML += index + ":" + item + "<br>";
+  retun
+}
+var orders = {}
 
     $(".btn-3").click(function () {
 
-        let details = [];
+
         $.each($("input[name='item']:checked"), function () {
 
             let pizzaType = $(this).next("label").text()
             let pizzaPrice = $(this).attr("price")
-            let siblings = $(this).siblings();
-            // let pizzaPrice = $(siblings[1].lastElementChild).clone().children().remove().end().value();
-            var pizzaDetails = {}
-            pizzaDetails["pizzaType"] = pizzaType;
-            pizzaDetails["pizzaPrice"] = pizzaPrice;
 
-            details.push(pizzaDetails)    //Pushing the selected orders into array.
+            orders["pizzaType"] = pizzaType;
+            orders["pizzaPrice"] = pizzaPrice;
 
         });
-        let timestamp = new Date().getUTCMilliseconds();
-        orders.orderId = timestamp;
-        orders.orders = details;
-
+        var messageList = ["Name?", "Mail?", "Mobile?", "Your order will reach fast to your door steps. Where do you want us to deliver?"]
+        fruits.forEach(myFunction);
 
 
         $.ajax({
@@ -104,12 +102,12 @@ function checkOrder(data) {
             success: function (data) {
                 console.log("----IN AJAXX-----")
                 console.log(data)
-                let message = ""
+
                 if (data.status == "Failed") {
-                    message = "Sorry, We couldn't process your order at this moment"
+                    message = "Sorry, We couldn't process your order at this moment."
                 }
                 else {
-                    message = "You order is placed and your order id is " + data.order_id
+                    message = "Your order is placed and your Order ID is " + data.order_id
                 }
                 outputArea.append(`
                 <div class='user-message'>
@@ -118,41 +116,71 @@ function checkOrder(data) {
                     `
                 <a href="/track?order_id=${data.order_id}"> track order</a> 
                 </div>
-                </div>`);
+                </div>`)
+                 for (let i = 0 ; i < messageList.length; i++) {
+
+                     deliveryDetails(messageList[i],i)
+                }
+
             },
             error: function (error) {
                 console.log(error);
             }
         });
 
-        // $.post("/order", { msg: "Order now" }).then(getResponse);
     });
 
 }
-function deliveryDetails(deliveryAddress) {
+function deliveryDetails(message,i) {
 
-    console.log("------IN DELIVERY DETAILS------")
-    orders.addressLocation = deliveryAddress;   // Adding the House Address.
-    console.log(orders);
 
-    $.ajax({
-        url: '/insertDb',
-        data: JSON.stringify(orders),
-        type: 'POST',
-        contentType: 'application/json;charset=UTF-8',
-        success: function (data) {
-            console.log("----IN AJAXX-----")
-            console.log(data)
+    let keys = ["cname", "cmail", "cmobile", "caddress"]
+    let dbStr = {}
 
-            $.get("/get", { msg: "Valid" }).then(getResponse);
-        },
-        error: function (error) {
-            console.log(error);
-        }
-    });
+    outputArea.append(`
+     <div class='user-message'>
+     <div class='message'>]
+     ` + message + ` 
+      </div>
+      </div>`).then($(".input-form").on("submit", function (e) {
+
+        dbStr[keys[i]] = $("#textInput").val();
+        $.ajax({
+            url: '/insertDb',
+            data: JSON.stringify(dbStr),
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                console.log("----IN AJAXX-----")
+                console.log(data)
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }));
+
 
 }
-function msgString() {
-    console.log("Promises are working!")
+// function ajax(dbStr) {
+//     $.ajax({
+//         url: '/insertDb',
+//         data: JSON.stringify(dbStr),
+//         type: 'POST',
+//         contentType: 'application/json;charset=UTF-8',
+//         success: function (data) {
+//             console.log("----IN AJAXX-----")
+//             console.log(data)
+//
+//         },
+//         error: function (error) {
+//             console.log(error);
+//         }
+//     });
+//
+//
+// }
 
-}
+
+

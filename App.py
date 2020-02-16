@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from chatterbot.trainers import ListTrainer
-from flask import redirect, url_for, session
+
 from flask import jsonify
 
 app = Flask(__name__)
@@ -62,7 +62,7 @@ class Customer(db.Model):
     cmail = db.Column(db.String(250), unique=True, nullable=False)
     cmobile = db.Column(db.Integer, unique=True, nullable=False)
     caddress = db.Column(db.String(250), nullable=False)
-    cpassword = db.Column(db.String(250), nullable=False)
+
     date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
@@ -90,21 +90,25 @@ def home():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    if "pizza" in userText:
-        list_pizza = [{
-            "id": "1",
-            "name": "aaaa",
-            "desc": 111,
-            "price": 100
-        }]
-    # print("-----------"+userText)       #User Input
     return str(english_bot.get_response(userText))  # order now
 
 # Getting the desired order details.
 
 
-@app.route("/insertDb", methods=['GET', 'POST'])
+@app.route("/insertDb", methods=['POST'])
 def insertDb():
+    ls = ["cname", "cmail", "cmobile", "caddress"]
+    list = []
+    for item in ls:
+        if item not in list:
+            list.append(request.args.get(item))
+
+    cname = list[0]
+    cmail = list[1]
+    cmobile = list[2]
+    caddress = list[3]
+    Customer(cname=cname, cmail=cmail, cmobile=cmobile, caddress=caddress)
+
     data = request.json
     print(data)
 

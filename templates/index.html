@@ -9,56 +9,61 @@
 </head>
 
 <body>
-    <div>
+<div>
 
-        <div class="chat-output" id="chat-output">
-            <div class="user-message">
-                <div class="message">Hi! I'm a bot. What's up?</div>
-            </div>
-        </div>
-
-        <div class="chat-input">
-
-            <form action="#0" id="user-input-form">
-                <input id="textInput" type="text" name="msg" class="textInput" placeholder="Welcome to YO-YO Pizza.">
-            </form>
-
+    <div class="chat-output" id="chat-output">
+        <div class="user-message">
+            <div class="message">Hi! I'm a bot. What's up?</div>
         </div>
     </div>
 
-    <script>
+    <div class="chat-input">
 
-        function validateStr(value) {
-                 return /\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\./i.test(value);
+        <form action="#0" id="user-input-form" class="input-form">
+            <input id="textInput" type="text" name="msg" class="textInput" placeholder="Welcome to YO-YO Pizza.">
+        </form>
 
-        }
+    </div>
+</div>
 
-        let outputArea = $("#chat-output");
-
+<script>
+    var message;
+    var messageList = { "cname" : "Name?", "cemail" : "Mail?",
+        "cmobile":"Mobile?", "address" : "Enter your address"}// "Your order will reach fast to your door steps. Where do you want us to deliver?"]
+    let outputArea = $("#chat-output");
+    let customer_info = {}
+    var rawText
+    if (message == null || message.includes("Your order is placed") == false || messageList.includes(message) == false) {
         // Depicting User Response
         $("#user-input-form").on("submit", function (e) {
 
             e.preventDefault();
-            let rawText = $("#textInput").val();
+            rawText = $("#textInput").val();
             outputArea.append(`<div class='bot-message'>
             <div class='message'>${rawText}
             </div>
             </div>`);
             $("#textInput").val("");
+            var i= 0
+            for (let [index,value] of Object.values(messageList).entries() ) {
+                outputArea.append(`<div class='bot-message'>
+            <div class='message'> messageList[index].value()
+            </div>
+            </div>`);
 
-            //-----------------Bot Response------------
-
-            // Expressions works on such addresses: "253 N. Cherry St."
-            if (validateStr(rawText) == false) {
-
-                $.get("/get", { msg: rawText }).then(getResponse);
+                raw_text = $("#textInput").val("");
+                // if (raw_text==null || raw_text==null){
+                //     i--
+                // }
+                customer_info[messageList.key()] = rawText
             }
-            else {
-                deliveryDetails(rawText);
-            }
+
+            $.get("/get", {msg: rawText}).then(getResponse);
+
 
         });
-    </script>
+    }
+</script>
 
 </body>
 
